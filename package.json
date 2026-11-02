@@ -1,0 +1,12 @@
+{
+  "name": "keyvault-lite",
+  "version": "0.1.0",
+  "description": "Educational custodial key vault with envelope encryption, rotating refresh tokens and signed ledger transfers. Zero dependencies.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "license": "MIT"
+}

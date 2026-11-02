@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KeyVault Lite</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#161a1f;--mute:#5b6572;--accent:#0f766e;--line:#d9dee5}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1418;--card:#171d23;--text:#e8edf2;--mute:#97a3b0;--accent:#2dd4bf;--line:#2a333c}}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--text)}
+main{max-width:760px;margin:0 auto;padding:24px 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin:0 0 16px}
+input,button{font:inherit;padding:8px 10px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+button{background:var(--accent);color:#06201d;border:0;cursor:pointer;font-weight:600}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.row input{flex:1;min-width:140px}
+code{font-size:12px;word-break:break-all;color:var(--mute)}#msg{color:var(--mute);min-height:1.4em}
+</style>
+</head>
+<body>
+<main>
+<h1>KeyVault Lite</h1>
+<p id="msg"></p>
+<section class="card" id="auth">
+  <div class="row"><input id="email" type="email" placeholder="email"><input id="pw" type="password" placeholder="password (10+ chars)"></div>
+  <div class="row"><button id="login">Sign in</button><button id="register">Create account</button></div>
+</section>
+<section class="card" id="app" hidden>
+  <div class="row"><input id="label" placeholder="wallet label"><button id="create">New wallet</button><button id="logout">Sign out</button></div>
+  <div id="wallets"></div>
+</section>
+</main>
+<script>
+let tokens=null;
+const $=(id)=>document.getElementById(id);
+const say=(t)=>{$("msg").textContent=t};
+async function api(method,path,body){
+  const r=await fetch(path,{method,headers:{"content-type":"application/json",...(tokens?{authorization:"Bearer "+tokens.accessToken}:{})},body:body?JSON.stringify(body):undefined});
+  if(r.status===204)return null;
+  const j=await r.json();
+  if(!r.ok)throw new Error(j.error||"Request failed");
+  return j;
+}
+async function enter(kind){
+  try{
+    tokens=await api("POST","/auth/"+kind,{email:$("email").value,password:$("pw").value});
+    $("auth").hidden=true;$("app").hidden=false;say("");refresh();
+  }catch(e){say(e.message)}
+}
+async function refresh(){
+  const list=await api("GET","/wallets");
+  const box=$("wallets");box.replaceChildren();
+  for(const w of list){
+    const d=document.createElement("div");d.className="card";
+    const h=document.createElement("strong");h.textContent=w.label+" · "+w.balance+" units";
+    const a=document.createElement("div");const c=document.createElement("code");c.textContent=w.address;a.append(c);
+    const row=document.createElement("div");row.className="row";
+    const fb=document.createElement("button");fb.textContent="Add 100 test units";
+    fb.onclick=async()=>{await api("POST",`/wallets/${w.id}/faucet`);refresh()};
+    const to=document.createElement("input");to.placeholder="destination address";
+    const amt=document.createElement("input");amt.type="number";amt.placeholder="amount";amt.style.maxWidth="110px";
+    const sb=document.createElement("button");sb.textContent="Send";
+    sb.onclick=async()=>{try{await api("POST",`/wallets/${w.id}/transfer`,{to:to.value,amount:Number(amt.value)});say("Transfer signed and recorded");refresh()}catch(e){say(e.message)}};
+    row.append(fb,to,amt,sb);d.append(h,a,row);box.append(d);
+  }
+}
+$("login").onclick=()=>enter("login");
+$("register").onclick=()=>enter("register");
+$("create").onclick=async()=>{await api("POST","/wallets",{label:$("label").value||"Wallet"});refresh()};
+$("logout").onclick=async()=>{await api("POST","/auth/logout");tokens=null;$("app").hidden=true;$("auth").hidden=false};
+</script>
+</body>
+</html>

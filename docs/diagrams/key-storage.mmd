@@ -1,0 +1,9 @@
+flowchart TD
+  G[Wallet.createRandom] --> E{KMS configured?}
+  E -- yes --> K[Encrypt with AWS KMS]
+  E -- no --> L[Encrypt with AES-256-GCM]
+  K --> V[Vault entry at wallet/userId/uuid]
+  L --> V
+  V --> R[Only key path saved in MongoDB]
+  R --> S[Sign request]
+  S --> X[Decrypt briefly, sign, clear cache]

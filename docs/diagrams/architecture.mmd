@@ -1,0 +1,8 @@
+flowchart LR
+  U[Browser<br/>React + Vite] -->|HTTPS + JWT| API[Express API<br/>routes and controllers]
+  API --> MW[Auth middleware<br/>rate limit, helmet]
+  MW --> SVC[Service layer<br/>auth, wallet, swap, vault]
+  SVC --> DB[(MongoDB<br/>users, wallets)]
+  SVC --> VAULT[Vault<br/>AWS KMS or AES-256-GCM]
+  SVC --> RPC[Ethereum node<br/>via Infura]
+  SVC --> ZX[0x API<br/>price and quote]

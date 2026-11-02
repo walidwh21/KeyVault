@@ -1,0 +1,12 @@
+sequenceDiagram
+  participant UI as Swap page
+  participant API as Backend
+  participant ZX as 0x API
+  UI->>API: GET /api/swap/price
+  API->>ZX: indicative price
+  ZX-->>UI: rate and route
+  UI->>API: GET /api/swap/check-allowance
+  UI->>API: GET /api/swap/quote
+  UI->>API: POST /api/swap/execute
+  API->>API: decrypt key, sign, broadcast
+  API-->>UI: transaction hash
