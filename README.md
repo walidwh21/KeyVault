@@ -53,19 +53,6 @@ stateDiagram-v2
   Used --> Revoked: same token replayed
   Revoked --> [*]
 ```
-
-## Screenshots
-
-| Sign in | Dashboard |
-| :---: | :---: |
-| ![Sign-in screen](docs/screenshots/01-login.jpg) | ![Dashboard with portfolio chart](docs/screenshots/02-dashboard.jpg) |
-| Email and password login with theme toggle | Portfolio chart, wallet summary and top tokens |
-
-| Swap | Security page | Architecture page |
-| :---: | :---: | :---: |
-| ![Swap screen](docs/screenshots/05-swap.jpg) | ![Security overview](docs/screenshots/03-security-page.jpg) | ![In-app architecture page](docs/screenshots/04-architecture-page.jpg) |
-| Token pair, amount and 0x quote | In-app explanation of key protection | In-app system overview |
-
 ## Run it
 
 ```bash
